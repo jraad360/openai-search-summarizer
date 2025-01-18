@@ -31,25 +31,20 @@ ai_api_client = AiClient(api_key=api_key)
 search_client = SearchClient()
 
 
-def setup_debugging() -> None:
-    debugpy.listen(("0.0.0.0", 5678))
-    print("Debugger is active on port 5678")
-    app.run(debug=True)
-
-
 @app.route('/')
-def search_page() -> str:
+def home() -> str:
     return render_template('home.html')
 
 
 @app.route('/search')
-def summarize() -> str:
+def search_results() -> str:
     query = request.args.get('q')
     if not query:
         return {'error': 'Query parameter is required'}, 400
 
     search_results = search_client.search(query)
 
+    # Beware prompt injection
     summary = ai_api_client.get_response(
         PROMPT.format(query=query, results=search_results))
 
